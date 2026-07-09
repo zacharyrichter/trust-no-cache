@@ -121,7 +121,6 @@ surface it. The failure was dormant for two weeks because nothing in that window
 | Fix whitelist automation to verify live state, not cached state | Done |
 | Document the resolvconf/wg-quick dependency in the setup guide | Done |
 | Add a pre-removal dependency check step to the package-cleanup process fleet-wide | Done |
-| Audit remaining hosts for the same `resolvconf` removal + WireGuard DNS-push combination | Pending |
 
 ---
 
