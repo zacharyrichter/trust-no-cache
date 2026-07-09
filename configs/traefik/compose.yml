@@ -1,0 +1,23 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    ports:
+      - 443:443
+    volumes:
+      - /opt/docker/traefik/config:/etc/traefik/
+    networks:
+      - proxy-net
+    env_file:
+      - path: ./.env
+    environment:
+      CLOUDFLARE_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
+    restart: always
+    security_opt:
+      - no-new-privileges=true
+    mem_limit: 256m
+    memswap_limit: 320m
+
+networks:
+  proxy-net:
+    external: true

@@ -1,0 +1,50 @@
+services:
+  yattee-server:
+    build:
+      context: "."
+      dockerfile: yattee.dockerfile
+      network: host
+    container_name: yattee-server
+    volumes:
+      - yattee_downloads:/downloads
+      - yattee_data:/app/data
+      - ./yt-dlp.conf:/root/.config/yt-dlp/config:ro
+    env_file: .env
+    environment:
+      - LOG_LEVEL=WARNING
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - proxy-net
+      - yattee-net
+    restart: unless-stopped
+    mem_limit: 512m
+    memswap_limit: 762m
+    depends_on:
+      - bgutil-pot
+
+  bgutil-pot:
+    image: brainicism/bgutil-ytdlp-pot-provider:latest
+    container_name: bgutil-pot
+    restart: unless-stopped
+    mem_limit: 256m
+    memswap_limit: 300m
+    ports:
+      - "4416:4416"
+    networks:
+      - yattee-net
+    stop_grace_period: 30s
+
+volumes:
+  yattee_downloads:
+  yattee_data:
+
+networks:
+  proxy-net:
+    external: true
+  yattee-net:

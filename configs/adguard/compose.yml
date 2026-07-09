@@ -1,0 +1,13 @@
+services:
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: adguard
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config:/opt/adguardhome/conf
+      - ./work:/opt/adguardhome/work
+    security_opt:
+      - no-new-privileges=true
+    mem_limit: 1024m
+    memswap_limit: 1536m

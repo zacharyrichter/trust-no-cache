@@ -1,0 +1,8 @@
+[favicons]
+cfg_schema = 1
+resolver_timeout = 2.0
+max_age = 604800
+
+[favicons.proxy]
+max_age = 604800
+

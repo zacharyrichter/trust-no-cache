@@ -1,0 +1,138 @@
+http:
+  routers:
+    adguard:
+      entryPoints:
+        - https
+      rule: "Host(`adguard.yourdomain.org`)"
+      middlewares:
+      middlewares:
+        - secured-chain@file
+        - adguard-auth@file
+      service: adguard
+    yattee:
+      entryPoints:
+        - https
+      rule: "Host(`yattee.yourdomain.org`)"
+      middlewares:
+        - secured-chain@file
+      service: yattee
+    redlib:
+      entryPoints:
+        - https
+      rule: "Host(`redlib.yourdomain.org`)"
+      middlewares:
+        - secured-chain@file
+      service: redlib
+    searxng:
+      entryPoints:
+        - https
+      rule: "Host(`search.yourdomain.org`)"
+      middlewares:
+        - secured-chain@file
+      service: searxng
+
+  services:
+    adguard:
+      loadBalancer:
+        servers:
+          # AdGuard uses host networking — set this to your Docker bridge gateway IP
+          # Find it with: docker network inspect bridge --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'
+          - url: http://<DOCKER_BRIDGE_IP>:3000
+        passHostHeader: true
+    redlib:
+      loadBalancer:
+        servers:
+          - url: http://redlib:8080
+        passHostHeader: true
+    yattee:
+      loadBalancer:
+        servers:
+          - url: http://yattee-server:8085
+        passHostHeader: true
+    searxng:
+      loadBalancer:
+        servers:
+          - url: http://searxng:8080
+        passHostHeader: true
+
+  ## MIDDLEWARES ##
+  middlewares:
+    # Only allow trusted source ranges — add your VPN subnet and any static IPs
+    local-ipwhitelist:
+      ipAllowList:
+        sourceRange:
+          - "172.16.0.0/12"   # Docker bridge subnet (adjust to match your setup)
+          - "10.8.0.0/24"     # WireGuard VPN subnet
+          # - "<YOUR_STATIC_IP>/32"  # Optional: additional trusted static IP
+
+    adguard-auth:
+      basicAuth:
+        users:
+          # Generate with: htpasswd -nB username
+          - "admin:<BCRYPT_HASH>"
+
+    # Strip client-supplied forwarded headers before they reach upstream
+strip-proxy-headers:
+      headers:
+        customRequestHeaders:
+          X-Real-IP: ""
+          X-Forwarded-For: ""
+          X-Forwarded-Host: ""
+          X-Forwarded-Proto: "https" # Forces your apps to see the connection as secure
+
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
+
+    # Security Headers
+    securityHeaders:
+      headers:
+    # HSTS Settings
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+    # Security Policies
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        frameDeny: false
+        customFrameOptionsValue: "SAMEORIGIN"
+    # Information Concealment & Permissions
+        customResponseHeaders:
+          Server: "" # Hides Traefik version
+          X-DNS-Prefetch-Control: "off"
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          Permissions-Policy: "microphone=(), camera=(), payment=(), geolocation=()"
+          # Cross-Origin Isolation (Spectre/Meltdown Protection)
+          Cross-Origin-Opener-Policy: "same-origin"
+          Cross-Origin-Embedder-Policy: "unsafe-none"
+          Cross-Origin-Resource-Policy: "same-site"
+    
+    # 3. PERFORMANCE
+    compress:
+      compress: {}
+
+    # 4. THE MASTER CHAIN
+    # This is what you apply to your routers.
+    # It executes in the order of: Clean -> Authorize -> Secure -> Compress
+    secured-chain:
+      chain:
+        middlewares:
+          - strip-proxy-headers
+          - local-ipwhitelist # Make sure this is defined in your file
+          - rate-limit
+          - securityHeaders
+          - compress
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS13
+      sniStrict: true
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+        - CurveP256

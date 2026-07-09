@@ -1,0 +1,58 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+entryPoints:
+  https:
+    address: :443
+    forwardedHeaders:
+      trustedIPs: &trustedIps
+        - "172.16.0.0/12"
+    http:
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: yourdomain.org
+            sans:
+              - '*.yourdomain.org'
+
+providers:
+  providersThrottleDuration: 2s
+
+  # File provider for connecting things that are outside of docker / defining middleware
+  file:
+    filename: /etc/traefik/fileConfig.yml
+    watch: true
+
+# Enable traefik ui
+api:
+  dashboard: false
+
+# Log level INFO|DEBUG|ERROR
+log:
+  filePath: "/etc/traefik/logs/traefik.log"
+  level: INFO
+  maxSize: 10
+  maxBackups: 3
+  maxAge: 7
+
+# Use letsencrypt to generate ssl certificates
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: your@email.com
+      storage: /etc/traefik/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        disablePropagationCheck: true
+        delayBeforeCheck: 60s
+
+accessLog:
+  filePath: "/etc/traefik/logs/access.log"
+  bufferingSize: 100
+  fields:
+    headers:
+      defaultMode: drop
+  filters:
+    statusCodes:
+      - "200-599"

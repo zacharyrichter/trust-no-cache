@@ -1,0 +1,24 @@
+services:
+  redlib:
+    image: quay.io/redlib/redlib:latest
+    restart: always
+    container_name: redlib
+    user: nobody
+    read_only: true
+    security_opt:
+      - no-new-privileges=true
+    cap_drop:
+      - ALL
+    env_file:
+      - path: ./.env
+    networks:
+      - proxy-net
+    healthcheck:
+      disable: true
+    mem_limit: 256m
+    memswap_limit: 512m
+
+networks:
+  proxy-net:
+    external: true
+    name: proxy-net

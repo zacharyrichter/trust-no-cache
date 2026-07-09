@@ -1,0 +1,199 @@
+general:
+  debug: false
+  instance_name: "SearXNG"
+  privacypolicy_url: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: false
+  open_metrics: ''
+
+brand:
+  new_issue_url: https://github.com/searxng/searxng/issues/new
+  docs_url: https://docs.searxng.org/
+  public_instances: https://searx.space
+  wiki_url: https://github.com/searxng/searxng/wiki
+  issue_url: https://github.com/searxng/searxng/issues
+
+search:
+  safe_search: 0
+  autocomplete: "google"
+  autocomplete_min: 2
+  favicon_resolver: ""
+  default_lang: "en-US"
+  ban_time_on_fail: 5
+  max_ban_time_on_fail: 120
+  suspended_times:
+    SearxEngineAccessDenied: 180
+    SearxEngineCaptcha: 3600
+    SearxEngineTooManyRequests: 180
+    cf_SearxEngineCaptcha: 1296000
+    cf_SearxEngineAccessDenied: 86400
+    recaptcha_SearxEngineCaptcha: 604800
+  formats:
+    - html
+
+server:
+  limiter: false
+  port: 8080
+  bind_address: "0.0.0.0"
+  base_url: "https://search.yourdomain.org"
+  public_instance: false
+  secret_key: "CHANGE_ME_generate_with_openssl_rand_hex_32"
+  image_proxy: false
+  http_protocol_version: "1.1"
+  method: "POST"
+  default_http_headers:
+    X-Content-Type-Options: nosniff
+    X-Download-Options: noopen
+    X-Robots-Tag: noindex, nofollow
+    Referrer-Policy: no-referrer
+
+valkey:
+  url: redis://searxng-redis:6379/0
+
+ui:
+  static_path: ""
+  templates_path: ""
+  query_in_title: false
+  default_theme: simple
+  center_alignment: false
+  default_locale: "en"
+  theme_args:
+    simple_style: auto
+  search_on_category_select: true
+  hotkeys: default
+  url_formatting: pretty
+
+outgoing:
+  request_timeout: 3.0
+  max_request_timeout: 6.0
+  useragent_suffix: ""
+  pool_connections: 20
+  pool_maxsize: 10
+  enable_http2: true
+
+plugins:
+  searx.plugins.calculator.SXNGPlugin:
+    active: true
+  searx.plugins.infinite_scroll.SXNGPlugin:
+    active: true
+  searx.plugins.hash_plugin.SXNGPlugin:
+    active: true
+  searx.plugins.self_info.SXNGPlugin:
+    active: false
+  searx.plugins.unit_converter.SXNGPlugin:
+    active: true
+  searx.plugins.ahmia_filter.SXNGPlugin:
+    active: false
+  searx.plugins.hostnames.SXNGPlugin:
+    active: false
+  searx.plugins.time_zone.SXNGPlugin:
+    active: true
+  searx.plugins.oa_doi_rewrite.SXNGPlugin:
+    active: false
+  searx.plugins.tor_check.SXNGPlugin:
+    active: false
+  searx.plugins.tracker_url_remover.SXNGPlugin:
+    active: true
+
+categories_as_tabs:
+  general:
+  images:
+  videos:
+  map:
+
+engines:
+
+  # --- Google (Primary) ---
+
+  - name: google
+    engine: google
+    shortcut: g
+    categories: general
+    time_range_support: true
+    paging: true
+
+  - name: google images
+    engine: google_images
+    shortcut: gimg
+    categories: images
+
+  - name: google videos
+    engine: google_videos
+    shortcut: gvid
+    categories: videos
+
+  - name: google maps
+    engine: google
+    shortcut: gmap
+    categories: map
+    google_category: maps
+
+  # --- DuckDuckGo (Fallback) ---
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    categories: general
+    time_range_support: true
+
+  # --- Brave (Fallback) ---
+
+  - name: brave
+    engine: brave
+    shortcut: br
+    categories: [general, web]
+    time_range_support: true
+    paging: true
+    brave_category: search
+
+  - name: brave images
+    engine: brave
+    network: brave
+    shortcut: brimg
+    categories: images
+    brave_category: images
+
+  - name: brave videos
+    engine: brave
+    network: brave
+    shortcut: brvid
+    categories: videos
+    brave_category: videos
+
+  # --- Startpage (Fallback) ---
+
+  - name: startpage
+    engine: startpage
+    shortcut: sp
+    categories: general
+    time_range_support: true
+    paging: true
+
+  # --- General Knowledge ---
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    categories: general
+    base_url: "https://en.wikipedia.org/"
+
+  # --- Weather ---
+
+  - name: wttr.in
+    engine: wttr
+    shortcut: wttr
+    timeout: 9.0
+
+  # --- Utilities ---
+
+  - name: currency
+    engine: currency_convert
+    categories: general
+    shortcut: cc
+
+doi_resolvers:
+  oadoi.org: 'https://oadoi.org/'
+  doi.org: 'https://doi.org/'
+
+default_doi_resolver: 'oadoi.org'
