@@ -151,7 +151,7 @@ configs/
 [`architecture.md`](architecture.md) is a visual diagram only — everything explained
 above, mapped out. No new content there, just the picture.
 
-Also included: a [postmortem](docs/Postmortem cascading dns failure.md) tracing the
+Also included: a [postmortem](docs/postmortem-cascading-dns-failure.md) tracing the
 boot-ordering gap mentioned above back through five layers to its actual root cause —
 worth reading if you want to see the debugging process rather than just the end state.
 
