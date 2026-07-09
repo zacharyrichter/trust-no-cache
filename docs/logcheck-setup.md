@@ -25,7 +25,7 @@ Logcheck scans system logs on a regular schedule and emails a report of any line
                                 your@email.com
 ```
 
-> **Prerequisite:** Complete the [Mailgun Email Setup Guide](./mailgun-email-setup.md) first.
+> **Prerequisite:** Complete the [Mailgun Email Setup Guide](mailgun-relay.md) first.
 > Logcheck sends reports via `/usr/local/bin/sendmail`, which must be in place before
 > logcheck is configured.
 
