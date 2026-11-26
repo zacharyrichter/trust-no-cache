@@ -11,7 +11,7 @@ The VPS's own notification server. Every alert from this host (integrity checks,
 - **Separate from the home ntfy**, so a home outage can't silence the VPS's alerts.
 - **Closed by default.** `auth-default-access: deny-all` and no sign-up. Publishing and subscribing both need an account or a token.
 - **Reached only through Traefik**, behind the IP allowlist. No ports are published.
-- **Existing tools need no changes.** `/usr/sbin/sendmail` is a symlink to `ntfy-sendmail`, so unattended-upgrades, cron and `docker-update` deliver here without any ntfy-specific code.
+- **Existing tools need no changes.** `/usr/sbin/sendmail` is a symlink to `ntfy-sendmail`, so unattended-upgrades, cron and `docker-update` deliver here without any ntfy-specific code. The shim's design, and the same pattern across the home fleet, are in [no-mail-server](https://github.com/zacharyrichter/no-mail-server).
 
 ## Current state
 
