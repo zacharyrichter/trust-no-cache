@@ -163,6 +163,8 @@ I confirmed the last one across a reboot: `wg-quick` finished at 6.82 s and Dock
 
 ## WireGuard
 
+This tunnel is the fallback half of a pair: every device also has a tunnel to the home router. The home side's per-device rules, and why switching between the two is manual, are in [narrow-tunnel](https://github.com/zacharyrichter/narrow-tunnel).
+
 `/etc/wireguard/wg0.conf`, brought up by `wg-quick@wg0`:
 
 - Server address `10.77.0.1/24`, UDP 51820.
@@ -194,7 +196,7 @@ DNS = 10.77.0.1
 PublicKey = $SERVER_PUB
 PresharedKey = $PSK
 Endpoint = vps.example.net:51820
-AllowedIPs = 0.0.0.0/0
+AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 EOF2
 
