@@ -1,6 +1,6 @@
 # trust-no-cache: access control for internet-facing services that can't have a login screen
 
-A small, hardened Debian VPS on the public internet. It runs a few self-hosted services, a DNS filter, a notification server, and a WireGuard tunnel that works as a second way back into my own network when the first one is down.
+A small, hardened Debian VPS on the public internet. It runs a few self-hosted services, a DNS filter, a notification server, and a WireGuard tunnel that gives my devices a second way online when the home tunnel is down.
 
 This repo documents *why* it's built the way it is. The guides in [`docs/`](docs/) cover the how, and [`configs/`](configs/) holds the sanitized configuration the host actually runs.
 
@@ -46,7 +46,7 @@ The simpler design would make this VPS another peer on my home VPN. I rejected i
 - **Availability.** The home VPN ends at a residential connection. If these services depended on a route home, their uptime would be capped by my ISP and router.
 - **Blast radius.** A server that accepts traffic from the internet shouldn't have a standing path into devices that don't. Joining the two networks would undo the segmentation before anything went wrong.
 
-So this host runs its own independent WireGuard instance. It exists so that I can reach the server, not so that the server can reach anything at home. The same rule shapes operations: the host holds no credentials for the home network, and its configuration is copied *out* by hand rather than pushed anywhere ([rebuild-from-config-repo.md](docs/rebuild-from-config-repo.md)).
+So this host runs its own independent WireGuard instance. It exists so that I can reach the server, and the internet through it, not so that the server can reach anything at home. The home side, with its per-device rules, and the reason I switch between the two by hand are in [narrow-tunnel](https://github.com/zacharyrichter/narrow-tunnel). The same rule shapes operations: the host holds no credentials for the home network, and its configuration is copied *out* by hand rather than pushed anywhere ([rebuild-from-config-repo.md](docs/rebuild-from-config-repo.md)).
 
 ## Detection, not just prevention
 
