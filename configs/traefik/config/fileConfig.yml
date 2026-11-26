@@ -1,0 +1,119 @@
+http:
+  ## EXTERNAL ROUTING EXAMPLE - Manually proxied service ##
+  routers:
+    adguard:
+      entryPoints:
+        - https
+      rule: "Host(`adguard.example.net`)"
+      middlewares:
+        - secured-chain@file
+        - adguard-auth@file
+      service: adguard
+    freshrss:
+      entryPoints:
+        - https
+      rule: "Host(`rss.example.net`)"
+      middlewares:
+        - secured-chain@file
+      service: freshrss
+    ntfy:
+      rule: "Host(`ntfy.example.net`)"
+      service: ntfy
+      middlewares:
+        - ntfy-chain
+      tls: {}
+  ##SERVICES##
+  services:
+    adguard:
+      loadBalancer:
+        servers:
+          - url: http://172.18.0.1:3000
+        passHostHeader: true
+    freshrss:
+      loadBalancer:
+        servers:
+          - url: http://172.18.0.50:80
+        passHostHeader: true
+    ntfy:
+      loadBalancer:
+        servers:
+          - url: "http://ntfy:80"
+  ## MIDDLEWARES ##
+  middlewares:
+    # Only Allow Local networks
+    local-ipwhitelist:
+      ipAllowList:
+        sourceRange:
+          - "172.16.0.0/12"
+          - "198.51.100.7/32"
+          - "10.77.0.0/24"
+    adguard-auth:
+      basicAuth:
+        usersFile: /etc/traefik/adguard.htpasswd
+    # Sets X-Forwarded-Proto: https for upstream apps (does not strip client headers; trustedIPs in traefik.yml handles that)
+    strip-proxy-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https" # Forces your apps to see the connection as secure
+
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
+
+    securityHeaders:
+      headers:
+    # HSTS Settings
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+    # Security Policies
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        frameDeny: false
+        customFrameOptionsValue: "SAMEORIGIN"
+    # Information Concealment & Permissions
+        customResponseHeaders:
+          Server: "" # Hides Traefik version
+          X-DNS-Prefetch-Control: "off"
+          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          Permissions-Policy: "microphone=(), camera=(), payment=(), geolocation=()"
+          # Cross-Origin Isolation (Spectre/Meltdown Protection)
+          Cross-Origin-Opener-Policy: "same-origin"
+          Cross-Origin-Embedder-Policy: "unsafe-none"
+          Cross-Origin-Resource-Policy: "same-site"
+    # 3. PERFORMANCE
+    compress:
+      compress: {}
+
+    # 4. THE MASTER CHAIN
+    # This is what you apply to your routers.
+    # It executes in the order of: Clean -> Authorize -> Secure -> Compress
+    secured-chain:
+      chain:
+        middlewares:
+          - strip-proxy-headers
+          - local-ipwhitelist # Make sure this is defined in your file
+          - rate-limit
+          - securityHeaders
+          - compress
+    ntfy-chain:
+      chain:
+        middlewares:
+         - local-ipwhitelist
+         - rate-limit
+         - securityHeaders
+         - compress
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS13
+      sniStrict: true
+      curvePreferences:
+        - CurveP521
+        - CurveP384
+        - CurveP256

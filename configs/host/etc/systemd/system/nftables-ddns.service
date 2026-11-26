@@ -1,0 +1,8 @@
+[Unit]
+Description=Update nftables whitelist via Cloudflare API
+Wants=network-online.target
+After=network-online.target nftables.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update-whitelist-ddns.sh

@@ -1,0 +1,10 @@
+[Unit]
+Description=Lightweight filesystem integrity check
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/scripts/integrity-check.sh
+Nice=19
+IOSchedulingClass=idle
+MemoryMax=64M

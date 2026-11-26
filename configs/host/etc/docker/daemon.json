@@ -1,0 +1,17 @@
+{
+  "firewall-backend": "nftables",
+  "userland-proxy": false,
+  "no-new-privileges": true,
+  "live-restore": true,
+  "log-driver": "journald",
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Hard": 64000,
+      "Soft": 64000
+    }
+  },
+  "ipv6": true,
+  "fixed-cidr-v6": "fd00:dead:beef::/64",
+  "ip6tables": true
+}

@@ -1,0 +1,9 @@
+/opt/appdata/traefik/config/logs/*.log {
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}

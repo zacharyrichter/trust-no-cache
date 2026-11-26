@@ -1,0 +1,3 @@
+# CIS baseline (manual, VPS)
+Defaults logfile="/var/log/sudo.log"
+Defaults timestamp_timeout=15

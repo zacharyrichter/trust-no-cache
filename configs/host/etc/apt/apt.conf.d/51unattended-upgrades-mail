@@ -1,0 +1,2 @@
+Unattended-Upgrade::Mail "ntfy";
+Unattended-Upgrade::MailReport "on-change";

@@ -1,0 +1,9 @@
+[Unit]
+Description=Docker Compose Update
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/docker-update.sh
+

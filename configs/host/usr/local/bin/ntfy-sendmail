@@ -1,0 +1,39 @@
+#!/bin/bash
+# /usr/local/bin/ntfy-sendmail
+# sendmail-compatible shim: publishes mail to ntfy.
+# NTFY_URL and NTFY_TOKEN come from /etc/ntfy-sendmail.env
+# (root:root 0600, per-host, not managed by this playbook).
+CONF="/etc/ntfy-sendmail.env"
+if [ ! -r "$CONF" ]; then
+    echo "ntfy-sendmail: cannot read $CONF" >&2
+    exit 1
+fi
+. "$CONF"
+
+SUBJECT=""
+while getopts ":s:o:f:F:it" opt; do
+    case $opt in
+        s) SUBJECT="$OPTARG" ;;
+    esac
+done
+shift $((OPTIND -1))
+
+INPUT=$(cat)
+
+if [ -z "$SUBJECT" ]; then
+    SUBJECT=$(echo "$INPUT" | grep -m1 "^Subject:" | sed 's/Subject: //')
+    BODY=$(echo "$INPUT" | awk 'found{print} /^$/{found=1}')
+else
+    BODY="$INPUT"
+fi
+
+[ -z "$SUBJECT" ] && SUBJECT="Notification from $(hostname)"
+[ -z "$BODY" ] && BODY="$INPUT"
+
+BODY=$(printf '%s' "$BODY" | head -c 3500)
+
+curl -sf --max-time 20 -o /dev/null \
+  -H "Authorization: Bearer ${NTFY_TOKEN}" \
+  -H "Title: ${SUBJECT}" \
+  --data-binary "${BODY}" \
+  "${NTFY_URL}"

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Re-strip nullok if a libpam-runtime upgrade restored it (CIS baseline, manual VPS)
+f=/usr/share/pam-configs/unix
+if grep -q nullok "$f"; then
+  sed -i -E 's/\s+nullok\b//' "$f"
+  DEBIAN_FRONTEND=noninteractive pam-auth-update --package
+  logger -t strip-nullok "nullok removed again after package update"
+fi

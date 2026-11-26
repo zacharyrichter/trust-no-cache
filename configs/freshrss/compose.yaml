@@ -1,0 +1,44 @@
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    container_name: freshrss
+    hostname: freshrss
+    restart: unless-stopped
+    mem_limit: 256m
+    memswap_limit: 256m
+    pids_limit: 200
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - KILL
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
+    # read_only is NOT supported by this image (tested 2026-11-13): the entrypoint
+    # rewrites timezone, PHP, Apache and cron config under /etc and /var at every start.
+    volumes:
+      - /opt/appdata/freshrss/data:/var/www/FreshRSS/data
+      - /opt/appdata/freshrss/extensions:/var/www/FreshRSS/extensions
+    environment:
+      TZ: UTC
+      CRON_MIN: '3,33'
+      TRUSTED_PROXY: 172.18.0.2/32
+    networks:
+      warpconduit:
+        ipv4_address: 172.18.0.50
+    healthcheck:
+      test: ["CMD", "cli/health.php"]
+      timeout: 10s
+      start_period: 60s
+      start_interval: 11s
+      interval: 75s
+      retries: 3
+
+networks:
+  warpconduit:
+    external: true
